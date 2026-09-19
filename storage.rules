@@ -1,0 +1,11 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Motos images folder: Public read access, admin-only write/delete
+    match /motos/{allPaths=**} {
+      allow read: if true;
+      allow write, delete: if request.auth != null;
+    }
+  }
+}
