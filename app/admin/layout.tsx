@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import { auth, isFirebaseConfigured } from "@/lib/firebase";
 import {
   LayoutDashboard,
   Bike,
@@ -14,7 +12,6 @@ import {
   Menu,
   X,
   ExternalLink,
-  ShieldCheck,
 } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -24,42 +21,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
-    // If on login route, don't enforce layout auth check
     if (pathname === "/admin/login") {
       setAuthenticated(true);
       return;
     }
-
-    if (isFirebaseConfigured && auth) {
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
-        if (user || localStorage.getItem("admin_authenticated") === "true") {
-          setAuthenticated(true);
-        } else {
-          setAuthenticated(false);
-          router.push("/admin/login");
-        }
-      });
-      return () => unsubscribe();
+    const localAuth = localStorage.getItem("admin_authenticated");
+    if (localAuth === "true") {
+      setAuthenticated(true);
     } else {
-      // Local fallback auth check
-      const localAuth = localStorage.getItem("admin_authenticated");
-      if (localAuth === "true") {
-        setAuthenticated(true);
-      } else {
-        setAuthenticated(false);
-        router.push("/admin/login");
-      }
+      setAuthenticated(false);
+      router.push("/admin/login");
     }
   }, [pathname, router]);
 
-  const handleLogout = async () => {
-    if (isFirebaseConfigured && auth) {
-      try {
-        await signOut(auth);
-      } catch (err) {
-        console.error("Firebase logout error:", err);
-      }
-    }
+  const handleLogout = () => {
     localStorage.removeItem("admin_authenticated");
     router.push("/admin/login");
   };
@@ -96,7 +71,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
           <span className="font-bold text-sm text-white">Admin Concession</span>
         </div>
-
         <button
           onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
           className="p-2 rounded-lg bg-zinc-800 text-zinc-300"
@@ -105,29 +79,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </button>
       </div>
 
-      {/* Admin Sidebar Desktop & Mobile Drawer */}
+      {/* Admin Sidebar */}
       <aside
         className={`${
           mobileSidebarOpen ? "block" : "hidden"
         } md:block w-full md:w-64 bg-zinc-900/90 border-r border-zinc-800 shrink-0 p-6 flex flex-col justify-between z-30 sticky top-0 h-auto md:h-screen`}
       >
         <div className="space-y-8">
-          {/* Logo Header */}
           <div className="space-y-1">
             <Link href="/admin" className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center text-white shadow-lg shadow-red-950/40">
                 <Bike className="w-6 h-6" />
               </div>
               <div className="flex flex-col">
-                <span className="font-extrabold text-base text-white tracking-tight">
-                  ADMINISTRATION
-                </span>
+                <span className="font-extrabold text-base text-white tracking-tight">ADMINISTRATION</span>
                 <span className="text-[10px] text-zinc-400 font-medium">Maison Moto Algérie</span>
               </div>
             </Link>
           </div>
 
-          {/* Nav Items */}
           <nav className="space-y-1.5">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -151,7 +121,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </nav>
         </div>
 
-        {/* Sidebar Footer Actions */}
         <div className="space-y-3 pt-6 border-t border-zinc-800/80 mt-6 md:mt-0">
           <Link
             href="/"
@@ -172,7 +141,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </aside>
 
-      {/* Main Content Area */}
       <div className="flex-1 p-4 sm:p-8 overflow-y-auto">
         <div className="max-w-6xl mx-auto">{children}</div>
       </div>

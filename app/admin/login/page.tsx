@@ -2,14 +2,16 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth, isFirebaseConfigured } from "@/lib/firebase";
-import { Bike, Lock, Mail, ShieldCheck, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Bike, Lock, Mail, ShieldCheck, ArrowRight } from "lucide-react";
+
+// Identifiants admin (à modifier une fois en production)
+const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@maisonmoto.dz";
+const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "admin123456";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("admin@maisonmoto.dz");
-  const [password, setPassword] = useState("admin123456");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -18,28 +20,15 @@ export default function AdminLoginPage() {
     setError("");
     setLoading(true);
 
-    if (isFirebaseConfigured && auth) {
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        localStorage.setItem("admin_authenticated", "true");
-        router.push("/admin");
-        return;
-      } catch (err: any) {
-        console.warn("Firebase Auth login failed:", err.message);
-        setError("Identifiants incorrects ou compte non configuré dans Firebase.");
-      } finally {
-        setLoading(false);
-      }
+    await new Promise((r) => setTimeout(r, 500)); // petite pause visuelle
+
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      localStorage.setItem("admin_authenticated", "true");
+      router.push("/admin");
     } else {
-      // Local demo mode authentication
-      if (email === "admin@maisonmoto.dz" && password === "admin123456") {
-        localStorage.setItem("admin_authenticated", "true");
-        router.push("/admin");
-      } else {
-        setError("Identifiants démo incorrects. Utilisez admin@maisonmoto.dz / admin123456");
-        setLoading(false);
-      }
+      setError("Email ou mot de passe incorrect.");
     }
+    setLoading(false);
   };
 
   const handleDemoAccess = () => {
@@ -52,26 +41,18 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md bg-zinc-900/90 border border-zinc-800 p-8 rounded-3xl shadow-2xl space-y-6 relative overflow-hidden">
         <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Logo & Header */}
         <div className="text-center space-y-3">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-600 to-red-800 mx-auto flex items-center justify-center shadow-lg shadow-red-950/50">
             <Bike className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight">
-            Espace Administration
-          </h1>
-          <p className="text-xs text-zinc-400">
-            Connectez-vous pour gérer le catalogue de votre concession moto.
-          </p>
+          <h1 className="text-2xl font-extrabold text-white tracking-tight">Espace Administration</h1>
+          <p className="text-xs text-zinc-400">Connectez-vous pour gérer le catalogue de votre concession moto.</p>
         </div>
 
         {error && (
-          <div className="p-3.5 rounded-xl bg-red-950/60 border border-red-800 text-xs text-red-300">
-            {error}
-          </div>
+          <div className="p-3.5 rounded-xl bg-red-950/60 border border-red-800 text-xs text-red-300">{error}</div>
         )}
 
-        {/* Login Form */}
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label className="text-xs font-bold text-zinc-300 uppercase tracking-wider block mb-1.5">
@@ -117,11 +98,8 @@ export default function AdminLoginPage() {
           </button>
         </form>
 
-        {/* Instant One-Click Demo Mode Button */}
         <div className="pt-4 border-t border-zinc-800/80 text-center space-y-3">
-          <p className="text-[11px] text-zinc-400">
-            Mode démonstration rapide activé pour ce projet
-          </p>
+          <p className="text-[11px] text-zinc-400">Mode démonstration rapide activé pour ce projet</p>
           <button
             onClick={handleDemoAccess}
             className="w-full py-2.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 hover:text-white font-semibold text-xs flex items-center justify-center gap-2 transition-colors"
