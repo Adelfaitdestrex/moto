@@ -1,0 +1,30 @@
+CREATE TABLE IF NOT EXISTS motos (
+  id VARCHAR(100) PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  brand VARCHAR(100) NOT NULL,
+  model VARCHAR(100) NOT NULL,
+  year INT NOT NULL,
+  price DECIMAL(10, 2) NOT NULL,
+  image VARCHAR(255) NOT NULL,
+  category VARCHAR(50) NOT NULL,
+  engine VARCHAR(100) NOT NULL,
+  power VARCHAR(100) NOT NULL,
+  weight VARCHAR(100) NOT NULL,
+  description TEXT NOT NULL,
+  status VARCHAR(50) NOT NULL,
+  features JSON,
+  createdAt BIGINT NOT NULL,
+  updatedAt BIGINT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS settings (
+  id VARCHAR(50) PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  phone VARCHAR(50) NOT NULL,
+  whatsapp VARCHAR(50) NOT NULL,
+  email VARCHAR(100) NOT NULL,
+  address TEXT NOT NULL,
+  facebook VARCHAR(255),
+  instagram VARCHAR(255),
+  about TEXT NOT NULL
+);

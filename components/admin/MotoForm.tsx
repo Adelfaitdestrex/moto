@@ -69,7 +69,9 @@ export default function MotoForm({ initialMoto, isEditing = false }: MotoFormPro
     try {
       const newImageUrls: string[] = [];
       for (let i = 0; i < files.length; i++) {
-        const url = await uploadImage(files[i]);
+        const formData = new FormData();
+        formData.append('file', files[i]);
+        const url = await uploadImage(formData);
         newImageUrls.push(url);
       }
       setImages((prev) => [...prev, ...newImageUrls]);
