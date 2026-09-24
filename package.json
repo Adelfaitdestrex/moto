@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": ".\\node_modules\\.bin\\next.cmd dev",
-    "build": ".\\node_modules\\.bin\\next.cmd build",
-    "start": ".\\node_modules\\.bin\\next.cmd start",
-    "lint": ".\\node_modules\\.bin\\next.cmd lint"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
     "clsx": "^2.1.1",
